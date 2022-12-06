@@ -6,9 +6,9 @@ using UnityEngine;
 public class Weapon : MonoBehaviour
 {
     [SerializeField] WeaponData weaponData;
+    [SerializeField] Transform muzzle;
 
     private float timeSinceLastShot;
-
 
     private void Update()
     {
@@ -18,9 +18,33 @@ public class Weapon : MonoBehaviour
     private void Start()
     {
         PlayerShoot.shoowInput += Shoot;
+        PlayerShoot.reloadInput += StartReload;
     }
 
     private bool CanShoot() => !weaponData.isReloading && timeSinceLastShot > 1f / (weaponData.fireRate / 60f);
+
+
+    public void StartReload()
+    {
+        if(!weaponData.isReloading)
+        {
+            StartCoroutine(Reload());
+        }
+    }
+
+
+    private IEnumerator Reload()
+    {
+        weaponData.isReloading = true;
+
+        yield return new WaitForSeconds(weaponData.reloadTime);
+
+        weaponData.currentAmmo += weaponData.magSize;
+
+        weaponData.isReloading = false;
+
+    }
+
 
     public void Shoot()
     {
@@ -28,7 +52,7 @@ public class Weapon : MonoBehaviour
         {
             if(CanShoot())
             {
-                if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo, weaponData.maxDistance))
+                if(Physics.Raycast(muzzle.position, transform.forward, out RaycastHit hitInfo, weaponData.maxDistance))
                 {
                     Debug.Log(hitInfo.transform.name);
                 }
@@ -38,11 +62,10 @@ public class Weapon : MonoBehaviour
                 OnWeaponShot();
             }
         }
-       
     }
 
     private void OnWeaponShot()
     {
-        Debug.Log("Shoot");
+        Debug.Log(weaponData.currentAmmo);
     }
 }
