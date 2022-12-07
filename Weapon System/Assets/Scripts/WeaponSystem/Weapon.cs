@@ -45,7 +45,6 @@ public class Weapon : MonoBehaviour
 
     }
 
-
     public void Shoot()
     {
         if (weaponData.currentAmmo > 0)
@@ -54,7 +53,8 @@ public class Weapon : MonoBehaviour
             {
                 if(Physics.Raycast(muzzle.position, transform.forward, out RaycastHit hitInfo, weaponData.maxDistance))
                 {
-                    Debug.Log(hitInfo.transform.name);
+                    IDamageable damageable = hitInfo.transform.GetComponent<IDamageable>();
+                    damageable?.Damage(weaponData.damage);
                 }
 
                 weaponData.currentAmmo--;
@@ -66,6 +66,5 @@ public class Weapon : MonoBehaviour
 
     private void OnWeaponShot()
     {
-        Debug.Log(weaponData.currentAmmo);
     }
 }
